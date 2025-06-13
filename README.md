@@ -8,7 +8,7 @@ This project is a simple Question Answering (QA) system built for Amharic-langua
 
 ## 🚀 Live Demo
 
-👉 [Launch the Streamlit App](https://share.streamlit.io/) *(replace with your live URL once deployed)*
+👉 [Launch the Streamlit App](https://share.streamlit.io/) 
 
 ---
 
