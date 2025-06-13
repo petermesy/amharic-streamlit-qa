@@ -3,4 +3,3 @@ sentence-transformers
 numpy
 google-generativeai
 torch
-gdown
