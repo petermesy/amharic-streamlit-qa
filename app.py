@@ -13,7 +13,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 embedding_model = SentenceTransformer("paraphrase-multilingual-mpnet-base-v2")
 
 # Load precomputed sentence embeddings
-POINTS_FILE = "./amharic-sentences-points.pkl"
+POINTS_FILE = "amharic_sentences_points.pkl"
 
 @st.cache_resource
 def load_points():
