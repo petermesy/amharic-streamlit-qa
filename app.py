@@ -6,9 +6,14 @@ import google.generativeai as genai
 import torch
 import os
 
+# Use GPU if available
 device = "cuda" if torch.cuda.is_available() else "cpu"
+
+# Load embedding model
 embedding_model = SentenceTransformer("paraphrase-multilingual-mpnet-base-v2", device=device)
-POINTS_FILE = "./amharic_sentences_points.pkl"
+
+# Load precomputed sentence embeddings
+POINTS_FILE = "amharic-sentences-points.pkl"
 
 @st.cache_resource
 def load_points():
@@ -16,6 +21,7 @@ def load_points():
         return pickle.load(f)
 points = load_points()
 
+# Local similarity search
 def local_similarity_search(query, points, limit=5):
     query_vector = embedding_model.encode(query).tolist()
     vectors = np.array([point.vector for point in points])
@@ -31,6 +37,7 @@ def local_similarity_search(query, points, limit=5):
     ]
     return results
 
+# Summarize using Gemini
 def summarize_with_gemini(matches, query, temperature=0.2):
     combined_text = "\n".join([match["text"] for match in matches])
     prompt = f"""
@@ -41,7 +48,7 @@ def summarize_with_gemini(matches, query, temperature=0.2):
 
     አጭር መልስ፦
     """
-    genai.configure(api_key=st.secrets["AIzaSyBDW0rlOkyG9YEKPkYmI3ovYJ1YcY5cMZQ"])
+    genai.configure(api_key=st.secrets["gemini_api_key"])
     model = genai.GenerativeModel("gemini-2.0-flash")
     response = model.generate_content(
         prompt,
@@ -49,6 +56,7 @@ def summarize_with_gemini(matches, query, temperature=0.2):
     )
     return response.text.strip()
 
+# Streamlit UI
 st.title("Amharic QA System")
 query = st.text_input("የጥያቄዎትን ጽሑፍ ያስገቡ (Enter your Amharic question):")
 if query:
