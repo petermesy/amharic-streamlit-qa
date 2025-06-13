@@ -10,7 +10,7 @@ import os
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Load embedding model
-embedding_model = SentenceTransformer("paraphrase-multilingual-mpnet-base-v2", device=device)
+embedding_model = SentenceTransformer("paraphrase-multilingual-mpnet-base-v2")
 
 # Load precomputed sentence embeddings
 POINTS_FILE = "amharic-sentences-points.pkl"
