@@ -56,7 +56,7 @@ def summarize_with_gemini(matches, query, temperature=2):
 
     አንድ አንቀጽ መልስ፦
     """
-    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+    genai.configure(api_key=st.secrets["AIzaSyA0a3ld-hCKxrsnTCYZA_aU8JJdENqhHSg"])
     model = genai.GenerativeModel("gemini-2.0-flash")
     response = model.generate_content(
         prompt,
