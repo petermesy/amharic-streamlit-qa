@@ -2,7 +2,7 @@ import streamlit as st
 import pickle
 import numpy as np
 from sentence_transformers import SentenceTransformer
-import google.generativeai as genai
+
 import torch
 import os
 
@@ -41,24 +41,16 @@ def local_similarity_search(query, points, limit=5):
     ]
     return results
 
-# Summarize using Gemini
-def summarize_with_gemini(matches, query, temperature=0.2):
-    combined_text = "\n".join([match["text"] for match in matches])
-    prompt = f"""
-    ከዚህ በታች የቀረቡት አንቀጾችን በመመስረት፣
-    '{query}' ላይ አጭር አማርኛ መልስ አዘጋጅ፡፡
 
-    {combined_text}
-
-    አጭር መልስ፦
-    """
-    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-    model = genai.GenerativeModel("gemini-2.0-flash")
-    response = model.generate_content(
-        prompt,
-        generation_config={"temperature": temperature}
-    )
-    return response.text.strip()
+# Simple automatic summarization: concatenate top matches and return a short summary
+def summarize_automatically(matches, query):
+    combined_text = " ".join([match["text"] for match in matches])
+    # Simple extractive summary: return the first 2-3 sentences
+    sentences = combined_text.split("።")
+    summary = "።".join(sentences[:3]).strip()
+    if not summary.endswith("።"):
+        summary += "።"
+    return summary
 
 # Streamlit UI
 st.title("Amharic QA System")
@@ -67,13 +59,6 @@ query = st.text_input("የጥያቄዎትን ጽሑፍ ያስገቡ (Enter your 
 
 if query:
     results = local_similarity_search(query, points, limit=5)
-    st.subheader("🔎 Top 5 Matches")
-    for r in results:
-        st.write(f"**Score:** {r['score']:.3f}")
-        st.write(r['text'])
-        st.markdown("---")
-
-    if st.button("Summarize with Gemini"):
-        summary = summarize_with_gemini(results, query)
-        st.subheader("📝 አጭር መጠቃለያ")
-        st.write(summary)
+    summary = summarize_automatically(results, query)
+    st.subheader("📝 አጭር መጠቃለያ")
+    st.write(summary)
