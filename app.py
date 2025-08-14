@@ -3,6 +3,8 @@ import pickle
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
+
+import google.generativeai as genai
 import torch
 import os
 
@@ -24,7 +26,7 @@ def load_points():
 points = load_points()
 
 # Local similarity search using cosine similarity
-def local_similarity_search(query, points, limit=5):
+def local_similarity_search(query, points, limit=15):
     query_vector = embedding_model.encode(query)
     vectors = np.array([point["vector"] for point in points])
     payloads = [point["payload"] for point in points]
@@ -42,15 +44,25 @@ def local_similarity_search(query, points, limit=5):
     return results
 
 
-# Simple automatic summarization: concatenate top matches and return a short summary
-def summarize_automatically(matches, query):
-    combined_text = " ".join([match["text"] for match in matches])
-    # Simple extractive summary: return the first 2-3 sentences
-    sentences = combined_text.split("።")
-    summary = "።".join(sentences[:3]).strip()
-    if not summary.endswith("።"):
-        summary += "።"
-    return summary
+
+# Summarize using Gemini into one paragraph
+def summarize_with_gemini(matches, query, temperature=2):
+    combined_text = "\n".join([match["text"] for match in matches])
+    prompt = f"""
+    ከዚህ በታች የቀረቡት አንቀጾችን በመመስረት፣ '{query}' ላይ አንድ አንቀጽ ውስጥ ያጠቃልሉ፡፡
+    አጭር አንድ አንቀጽ መልስ ብቻ ይስጡ።
+
+    {combined_text}
+
+    አንድ አንቀጽ መልስ፦
+    """
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+    model = genai.GenerativeModel("gemini-2.0-flash")
+    response = model.generate_content(
+        prompt,
+        generation_config={"temperature": temperature}
+    )
+    return response.text.strip()
 
 # Streamlit UI
 st.title("Amharic QA System")
@@ -58,7 +70,7 @@ st.title("Amharic QA System")
 query = st.text_input("የጥያቄዎትን ጽሑፍ ያስገቡ (Enter your Amharic question):")
 
 if query:
-    results = local_similarity_search(query, points, limit=5)
-    summary = summarize_automatically(results, query)
+    results = local_similarity_search(query, points, limit=15)
+    summary = summarize_with_gemini(results, query)
     st.subheader("📝 አጭር መጠቃለያ")
     st.write(summary)
