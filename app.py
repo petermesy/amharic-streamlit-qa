@@ -8,6 +8,7 @@ import os
 
 # Use GPU if available
 device = "cuda" if torch.cuda.is_available() else "cpu"
+GEMINI_API_KEY = "AIzaSyA0a3ld-hCKxrsnTCYZA_aU8JJdENqhHSg"
 
 # Load embedding model
 embedding_model = SentenceTransformer("paraphrase-multilingual-mpnet-base-v2")
@@ -52,7 +53,7 @@ def summarize_with_gemini(matches, query, temperature=0.2):
 
     አጭር መልስ፦
     """
-    genai.configure(api_key=st.secrets["AIzaSyA0a3ld-hCKxrsnTCYZA_aU8JJdENqhHSg"])
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
     model = genai.GenerativeModel("gemini-2.0-flash")
     response = model.generate_content(
         prompt,
