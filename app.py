@@ -9,7 +9,7 @@ import os
 # Use GPU if available
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Load embedding model (no need to manually assign to device anymore)
+# Load embedding model
 embedding_model = SentenceTransformer("paraphrase-multilingual-mpnet-base-v2")
 
 # Path to the .pkl file
@@ -52,7 +52,7 @@ def summarize_with_gemini(matches, query, temperature=0.2):
 
     አጭር መልስ፦
     """
-    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+    genai.configure(api_key=st.secrets["AIzaSyA0a3ld-hCKxrsnTCYZA_aU8JJdENqhHSg"])
     model = genai.GenerativeModel("gemini-2.0-flash")
     response = model.generate_content(
         prompt,
@@ -67,13 +67,6 @@ query = st.text_input("የጥያቄዎትን ጽሑፍ ያስገቡ (Enter your 
 
 if query:
     results = local_similarity_search(query, points, limit=5)
-    st.subheader("🔎 Top 5 Matches")
-    for r in results:
-        st.write(f"**Score:** {r['score']:.3f}")
-        st.write(r['text'])
-        st.markdown("---")
-
-    if st.button("Summarize with Gemini"):
-        summary = summarize_with_gemini(results, query)
-        st.subheader("📝 አጭር መጠቃለያ")
-        st.write(summary)
+    summary = summarize_with_gemini(results, query)
+    st.subheader("📝 አጭር መልስ")
+    st.write(summary)
