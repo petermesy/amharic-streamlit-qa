@@ -53,7 +53,8 @@ def summarize_with_gemini(matches, query, temperature=0.2):
 
     አጭር መልስ፦
     """
-    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+    # ✅ Use the defined variable instead of st.secrets
+    genai.configure(api_key=GEMINI_API_KEY)
     model = genai.GenerativeModel("gemini-2.0-flash")
     response = model.generate_content(
         prompt,
